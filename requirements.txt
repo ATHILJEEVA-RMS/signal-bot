@@ -1,0 +1,6 @@
+asyncio
+logging
+pandas
+numpy
+ccxt
+python-telegram-bot
