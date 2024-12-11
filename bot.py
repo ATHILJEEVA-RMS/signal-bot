@@ -35,7 +35,7 @@ bot = Bot(token=TELEGRAM_TOKEN)
 checked_symbols_state = {}
 
 
-async def fetch_binance_data(symbol, timeframe="1m", limit=500):
+async def fetch_binance_data(symbol, timeframe="1h", limit=500):
     try:
         ohlcv = await exchange.fetch_ohlcv(symbol, timeframe, limit=limit)
         df = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
@@ -200,7 +200,7 @@ def get_current_ist_time():
 
 async def process_symbol(symbol):
     try:
-        df = await fetch_binance_data(symbol, timeframe="1m")
+        df = await fetch_binance_data(symbol, timeframe="1h")
         if df.empty:
             logging.warning(f"No data for {symbol}. Skipping...")
             return
@@ -215,7 +215,7 @@ async def process_symbol(symbol):
             🔔 **Signal Type**: **Buy Signal**  
             💰 **Entry Price**: {signal}  
 
-            📈 **Timeframe**: 1-Minute  
+            📈 **Timeframe**: 1-Hour 
             ⏰ **Signal Generated**:  
             - **IST Time**: {get_current_ist_time()}  
             - **UTC Time**: {get_current_utc_time()}  
@@ -229,13 +229,14 @@ async def process_symbol(symbol):
 
 async def wait_for_next_candle():
     """
-    Waits until the next 1-minute candle close.
+    Waits until the next 1-hour candle close.
     """
     now = datetime.now(timezone.utc)
-    next_candle_time = now.replace(second=0, microsecond=0) + timedelta(minutes=1)
+    # Adjust the time to the start of the next hour
+    next_candle_time = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
 
     wait_time = (next_candle_time - now).total_seconds()
-    print(f"Waiting {wait_time:.2f} seconds until the next 1-minute candle close at {next_candle_time}...")
+    print(f"Waiting {wait_time:.2f} seconds until the next 1-hour candle close at {next_candle_time}...")
     await asyncio.sleep(wait_time)
 
 
